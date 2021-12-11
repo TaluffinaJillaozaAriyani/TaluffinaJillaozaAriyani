@@ -1,0 +1,42 @@
+> data(bliss)
+> modl <-glm (cbind (dead, alive)-conc, family=binomial, bliss)
+> summary (modl) Scoef
+               Estimate Std. Error z value Pr(>|z|)
+  (Intercept)  -2.3238    0.41789  -5.5608  2.6854e-08
+  conc          1.1619    0.18142   6.4046  1.5077e-10
+> y <-bliss$dead/30; mu <- y
+> eta <- logit (mu)
+> z <- eta + (y-mu)/(mu*(1-mu))
+> w <- 30*mu*(1-mu)
+> lmod <- lm (z~conc, weights=w, bliss)
+> coef (lmod)
+  (Intercept)   conc
+     2.3025    1.1536
+> for (i in 1:5) {
++ eta <- lmod$fit
++ mu <- ilogit (eta)
++ z <- eta + (y-mu)/(mu*(1-mu))
++ w <- 30*mu*(1-mu)
++ lmod <- lm (z~bliss$conc, weights=w)
++ cat (i, coef(lmod),"\n")
++ }
+1 -2.3237 1.1618
+2 -2.3238 1.1619
+3 -2.3238 1.1619
+4 -2.3238 1.1619
+5 -2.3238 1.1619
+> summary (lmod)
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)
+(Intercept)  -2.3238   0.1462     -15.9   0.00054
+conc          1.1619   0.0635      18.3   0.00036
+Residual standard error: 0.35 on 3 degress of freedom
+> xm <- model, matrix (lmod)
+> wm <- diag(w)
+> sqrt (diag (solve(t(xm)%*% wm %*% xm)))
+ [1] 0.41787 0.18141
+> summary(lmod)$coef[,2]/summary(lmod)$sigma
+ (Intercept)    conc
+   0.41789     0.18142
+ 
+
